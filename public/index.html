@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scraper de YouTube</title>
+  </head>
+  <body>
+    <h1>Extraer Títulos de Videos de un Canal de YouTube</h1>
+    <form id="scrapeForm">
+      <input
+        type="text"
+        id="channelUrl"
+        placeholder="URL del canal (https://www.youtube.com/@canal/videos)"
+        required
+        style="width: 400px"
+      />
+      <button type="submit">Obtener Videos</button>
+    </form>
+    <div id="output"></div>
+
+    <script>
+      document
+        .getElementById("scrapeForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const url = document.getElementById("channelUrl").value;
+          const output = document.getElementById("output");
+          output.innerHTML = "<p>Cargando...</p>";
+          try {
+            const res = await fetch("/scrape", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url }),
+            });
+            const data = await res.json();
+            output.innerHTML =
+              "<h3>Videos encontrados:</h3>" +
+              data.videos
+                .map(
+                  (v) =>
+                    `<p><a href="${v.href}" target="_blank">${v.title}</a></p>`
+                )
+                .join("");
+          } catch (err) {
+            output.innerHTML = "<p>Error al obtener los datos.</p>";
+            console.error(err);
+          }
+        });
+    </script>
+  </body>
+</html>
